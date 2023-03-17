@@ -1,0 +1,149 @@
+
+
+```r
+library(tidyverse)
+library(magrittr)
+library(lubridate)
+library(sf)
+library(raster)
+#library(rgeos)
+library(viridis)
+library(tictoc)
+```
+
+## Match the crs and extents of sf objects
+
+
+```r
+# Load 10 km grid
+grid_sf = read_sf("../data/input/remote_data/10km_grid_wgs84/10km_grid_wgs84.shp")
+zip_sf = read_sf("../data/input/Zipcode_Info/polygon/ESRI06USZIP5_POLY_WGS84.shp")
+
+st_crs(grid_sf)
+```
+
+```
+## Coordinate Reference System:
+##   User input: 4326 
+##   wkt:
+## GEOGCS["WGS 84",
+##     DATUM["WGS_1984",
+##         SPHEROID["WGS 84",6378137,298.257223563,
+##             AUTHORITY["EPSG","7030"]],
+##         AUTHORITY["EPSG","6326"]],
+##     PRIMEM["Greenwich",0,
+##         AUTHORITY["EPSG","8901"]],
+##     UNIT["degree",0.0174532925199433,
+##         AUTHORITY["EPSG","9122"]],
+##     AUTHORITY["EPSG","4326"]]
+```
+
+```r
+st_crs(zip_sf)
+```
+
+```
+## Coordinate Reference System:
+##   User input: 4326 
+##   wkt:
+## GEOGCS["WGS 84",
+##     DATUM["WGS_1984",
+##         SPHEROID["WGS 84",6378137,298.257223563,
+##             AUTHORITY["EPSG","7030"]],
+##         AUTHORITY["EPSG","6326"]],
+##     PRIMEM["Greenwich",0,
+##         AUTHORITY["EPSG","8901"]],
+##     UNIT["degree",0.0174532925199433,
+##         AUTHORITY["EPSG","9122"]],
+##     AUTHORITY["EPSG","4326"]]
+```
+
+
+```r
+grid_sf %>% 
+  st_simplify() %>% 
+  ggplot(aes(fill = "red"), alpha = 0.75, lwd = 0.1) + 
+  geom_sf() + 
+  theme(legend.position = "none")
+```
+
+```
+## Warning in st_simplify.sfc(st_geometry(x), preserveTopology, dTolerance): st_simplify does not
+## correctly simplify longitude/latitude data, dTolerance needs to be in decimal degrees
+```
+
+![](./03_match_cts_extent_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
+
+
+```r
+zip_sf %>% 
+  ggplot() + 
+  geom_sf(aes(fill = "red"), alpha = 0.75, lwd = 0.1) + 
+  theme(legend.position = "none")
+```
+
+![](./03_match_cts_extent_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
+
+
+```r
+ext.ras <- extent(grid_sf)
+ext.pol <- extent(zip_sf)
+
+plot(ext.ras, 
+     xlim = c(min(ext.ras@xmin, ext.pol@xmin), 
+              max(ext.ras@xmax, ext.pol@xmax)), 
+     ylim= c(min(ext.ras@ymin, ext.pol@ymin), 
+              max(ext.ras@ymax, ext.pol@ymax)), 
+     col="red")
+plot(ext.pol, add=T, col="blue")
+```
+
+![](./03_match_cts_extent_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
+
+
+```r
+#sf_use_s2(FALSE)
+zip_sf <- st_crop(zip_sf, st_bbox(grid_sf))
+```
+
+```
+## although coordinates are longitude/latitude, st_intersection assumes that they are planar
+```
+
+```
+## Warning: attribute variables are assumed to be spatially constant throughout all geometries
+```
+
+
+```r
+zip_sf %>% 
+  ggplot() + 
+  geom_sf(aes(fill = "red"), alpha = 0.75, lwd = 0.1) + 
+  theme(legend.position = "none")
+```
+
+![](./03_match_cts_extent_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
+
+
+```r
+ext.ras <- extent(grid_sf)
+ext.pol <- extent(zip_sf)
+
+plot(ext.ras, 
+     xlim = c(min(ext.ras@xmin, ext.pol@xmin), 
+              max(ext.ras@xmax, ext.pol@xmax)), 
+     ylim= c(min(ext.ras@ymin, ext.pol@ymin), 
+              max(ext.ras@ymax, ext.pol@ymax)), 
+     col="red")
+plot(ext.pol, add=T, col="blue")
+```
+
+![](./03_match_cts_extent_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
+
+
+```r
+## save matching sf's
+write_rds(grid_sf, "../data/intermediate/scratch/grid_sf.rds")
+write_rds(zip_sf, "../data/intermediate/scratch/zip_sf.rds")
+```
+
