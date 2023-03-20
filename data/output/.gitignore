@@ -4,5 +4,5 @@
 !.gitignore
 # but do not ignore the README.md file
 !README.md
-# do not ignore shared_data folder
-!/remote_data
+# do not ignore x folder
+!/x
