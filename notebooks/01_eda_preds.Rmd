@@ -1,0 +1,62 @@
+
+```{r, warning=F, message=F}
+library(tidyverse)
+library(magrittr)
+library(lubridate)
+library(sf)
+```
+
+```{r}
+# Load smokePM predictions on smoke days
+preds = read_csv("../data/input/smoke_PM/smokePM2pt5_predictions_daily_10km_20060101-20201231.csv") %>% 
+  mutate(date = ymd(date))
+
+# Load 10 km grid
+grid_10km = read_sf("../data/input/remote_data/10km_grid_wgs84/10km_grid_wgs84.shp")
+```
+
+```{r}
+# Identify days with smoke
+tibble(smoke_days = unique(preds$date), year = lubridate::year(smoke_days)) %>% 
+  group_by(year) %>% 
+  summarise(n = n())
+## mostly all days have smoke present
+```
+
+```{r}
+# Identify grids with smoke per day
+preds %>% 
+  group_by(date) %>% 
+  summarise(n = n()) %>% 
+  ggplot() +
+  geom_line(aes(x = date, y = n))
+## in most days smoke is present in grids, but the number is significantly different
+```
+
+```{r}
+## Print days with more than 50,000 grids with smoke 
+preds %>% 
+  group_by(date) %>% 
+  summarise(n = n()) %>% 
+  filter(n > 50000)
+```
+
+```{r}
+## Get a full-grid representation for a day
+date_ = as.Date("2006-06-29")
+
+out = expand.grid(grid_id_10km = grid_10km$ID, date = date_)
+
+# Match smokePM predictions on smoke days to grid cell-days
+out = left_join(out, preds, by = c("grid_id_10km", "date"))
+
+sum(is.na(out$smokePM_pred))
+## grids with no smoke
+```
+
+```{r}
+# Predict 0 for remaining grid cell-days with no smoke
+out = mutate(out, smokePM_pred = replace_na(smokePM_pred, 0))
+
+hist(out$smokePM_pred)
+```
