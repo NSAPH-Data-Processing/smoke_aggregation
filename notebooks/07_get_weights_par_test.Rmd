@@ -1,0 +1,122 @@
+---
+get_weights_par unit test
+---
+
+```{r, warning=FALSE, message=FALSE}
+library(lwgeom)
+library(tidyverse)
+library(lubridate)
+library(sf)
+library(raster)
+library(viridis)
+library(mclapply)
+```
+
+## Join smoke values to shape
+
+```{r}
+grid_sf = read_rds("../data/intermediate/scratch/grid_sf.rds") %>% 
+  rename(grid_id = ID)
+zip_sf_list = read_rds("../data/intermediate/scratch/zip_sf_list.rds") 
+zip_sf = zip_sf_list[[as.character(args$year)]] %>% 
+  rename(zip_id = ZIP)
+rm(zip_sf_list)
+
+head(grid_sf)
+```
+```{r}
+head(zip_sf)
+```
+
+```{r}
+source("../../lib/get_weights_par.R")
+
+## run aggregations ----
+zip_weights_df <- get_weights_par(
+  x_poly_sf = zip_sf[1:10,], 
+  y_poly_sf = grid_sf, 
+  x_id = "ZIP", 
+  y_id = "ID", 
+  cores = 2
+
+)
+```
+
+```{r}
+head(zip_weights_df)
+```
+
+```{r}
+
+grouped_zip_weights_df <- zip_weights_df %>% 
+  group_by(ZIP) %>% 
+  summarise(sum_w = sum(w))
+
+head(grouped_zip_weights_df)
+```
+
+
+```{r}
+
+grouped_zip_weights_df$sum_w_is_one <- ifelse(grouped_zip_weights_df$sum_w == 1, "True", "False")
+
+# Add error margin
+epsilon <- 0.000001
+grouped_zip_weights_df$sum_w_is_one_ep <- ifelse(grouped_zip_weights_df$sum_w >= (1-epsilon) & grouped_zip_weights_df$sum_w <= (1+epsilon),
+                             "False",
+                             "True")
+
+
+head(grouped_zip_weights_df)
+```
+
+```{r}
+# Return false only 
+
+grouped_zip_weights_df[which(grouped_zip_weights_df$sum_w_is_one_ep == 'False'), ]
+```
+
+
+```{r}
+
+# Unit testing 
+test_get_weights_par <- function(epsilon){
+  
+  # Test 1: check if the sum of "w" for every same x_id equals to 1
+  test_weights <- get_weights_par(x_poly_sf = zip_sf[1:10,], 
+                  y_poly_sf = grid_sf, 
+                  x_id = "ZIP", 
+                  y_id = "ID", 
+                  cores = 2)
+
+  
+  grouped_zip_weights_df <- test_weights %>% 
+  group_by(ZIP) %>% 
+  summarise(sum_w = sum(w))
+  
+  grouped_zip_weights_df$sum_w_is_one <- ifelse(grouped_zip_weights_df$sum_w == 1, "True", "False")
+
+  # Add error margin
+  grouped_zip_weights_df$sum_w_is_one_ep <- ifelse(grouped_zip_weights_df$sum_w >= (1-epsilon) & grouped_zip_weights_df$sum_w <= (1+epsilon),
+                               "True",
+                               "False")
+
+  
+  # Test 2: check if the function output is of data.frame class
+  stopifnot(class(test_weights) == "data.frame")
+  
+  # Test 3: check if the function output have the expected columns
+  stopifnot(all(colnames(test_weights) == c("ZIP", "ID", "w")))
+  
+  return(grouped_zip_weights_df[which(grouped_zip_weights_df$sum_w_is_one_ep == 'False'), ])
+}
+
+```
+
+```{r}
+# Unit test run
+
+test_get_weights_par(0.000001)
+```
+
+
