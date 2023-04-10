@@ -19,7 +19,7 @@ library(sf)
 
 ```{r, warning=FALSE, message=FALSE}
 # Load smokePM predictions on smoke days
-preds = read_csv("../data/input/smoke_PM/smokePM2pt5_predictions_daily_10km_20060101-20201231.csv") %>% 
+preds = read_csv("../data/input/local_data/smokePM2pt5_predictions_daily_10km_20060101-20201231.csv") %>% 
   mutate(
     date = ymd(date)
   ) %>% 
@@ -33,7 +33,7 @@ head(preds)
 
 ```{r, warning=FALSE, message=FALSE}
 # Load 10 km grid
-grid_10km = read_sf("../data/input/remote_data/10km_grid_wgs84/10km_grid_wgs84.shp")
+grid_10km = read_sf("../data/input/local_data/10km_grid_wgs84/10km_grid_wgs84.shp")
 
 head(grid_10km)
 ```

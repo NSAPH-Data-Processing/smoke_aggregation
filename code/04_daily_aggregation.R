@@ -13,7 +13,7 @@ grid_10km = read_sf("../data/input/local_data/10km_grid_wgs84/10km_grid_wgs84.sh
   )
 
 # Load smokePM predictions on smoke days
-preds = read_csv("/net/rcstorenfs02/ifs/rc_labs/dominici_lab/lab/data/exposures/smoke/smokePM2pt5_predictions_daily_10km_20060101-20201231.csv") %>% 
+preds = read_csv("../data/input/local_data/smokePM2pt5_predictions_daily_10km_20060101-20201231.csv") %>% 
   mutate(
     date = ymd(date)
   ) %>% 
@@ -28,9 +28,10 @@ zip_smoke_df = data.frame(zip = character(),
                           smoke = double(),
                           stringsAsFactors = FALSE)
 
-for(y_ in 2006:2007){
-  y_ <- 2006
+for(y_ in 2016:2016){
   # Load full set of dates
+  print("Now Processing year:")
+  print(y_)
   dates = seq.Date(ymd(paste0(y_, "0101")), 
                    ymd(paste0(y_, "1231")), 
                    by = "day")
@@ -59,38 +60,11 @@ for(y_ in 2006:2007){
     group_by(zip, date)  %>%
     summarise(smoke =  weighted.mean(smoke, w=w))
   
-  zip_smoke_df = rbind(zip_smoke_df, zip_smoke_df_y)
-  
+  #save(zip_smoke_df_y, file = "../data/output/smoke/daily_zip_.RData")
+  write_csv(
+    zip_smoke_df_y, 
+    paste0("../data/output/", 
+           "daily_zip_", as.character(y_), ".csv")
+  )
+
 }
-
-zip_sf = read_rds("../data/intermediate/scratch/zip_sf_list.rds") 
-
-save(zip_smoke_df, file = "../data/output/smoke/daily_zip_test.RData")
-
-
-
-# Load required libraries
-library(tidyverse)
-library(sf)
-
-# Read in the shapefile for zipcodes
-zip_sf <- read_sf("../data/input/local_data/Zipcode_Info/polygon/ESRI06USZIP5_POLY_WGS84.shp")
-
-zip_smoke_df$date <- as.Date(zip_smoke_df$date)
-
-# Subset the data for the given date
-zip_smoke_subset <- zip_smoke_df %>% filter(date == "2006-01-01")
-
-# Join the data with the shapefile based on the zipcode
-zip_sf <- left_join(zip_sf, zip_smoke_subset, by = c("ZIP" = "zip"))
-
-# Drop rows with NULL values in smoke column
-zip_sf <- zip_sf %>% drop_na(smoke)
-
-
-# Create a map of smoke in every zipcode with thinner line width
-ggplot() +
-  geom_sf(data = zip_sf, aes(fill = smoke), lwd = 0.1) +
-  scale_fill_gradient(low = "yellow", high = "red") +
-  theme_void()
-

@@ -8,11 +8,11 @@ library(sf)
 
 ```{r}
 # Load smokePM predictions on smoke days
-preds = read_csv("../data/input/smoke_PM/smokePM2pt5_predictions_daily_10km_20060101-20201231.csv") %>% 
+preds = read_csv("../data/input/local_data/smokePM2pt5_predictions_daily_10km_20060101-20201231.csv") %>% 
   mutate(date = ymd(date))
 
 # Load 10 km grid
-grid_10km = read_sf("../data/input/remote_data/10km_grid_wgs84/10km_grid_wgs84.shp")
+grid_10km = read_sf("../data/input/local_data/10km_grid_wgs84/10km_grid_wgs84.shp")
 ```
 
 ```{r}
@@ -55,7 +55,7 @@ sum(is.na(out$smokePM_pred))
 ```
 
 ```{r}
-# Predict 0 for remaining grid cell-days with no smoke
+# Impute 0 for remaining grid cell-days with no smoke
 out = mutate(out, smokePM_pred = replace_na(smokePM_pred, 0))
 
 hist(out$smokePM_pred)

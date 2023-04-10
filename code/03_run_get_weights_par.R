@@ -8,7 +8,7 @@ library(parallel)
 library(argparse)
 print("This is the sf package version we are using:")
 print(packageVersion("sf"))
-
+print(Sys.time())
 ## define parser arguments ----
 parser <- ArgumentParser()
 parser$add_argument("-y", "--year", default=2006,
@@ -22,7 +22,7 @@ print("use R script get_weights_par")
 # args$cores = 24
 
 ## read functions ----
-source("../../lib/get_weights_par.R")
+source("../lib/get_weights_par.R")
 
 print("load data")
 ## Load grid and zip sf objects ----
@@ -50,8 +50,8 @@ zip_weights_df$year <- args$year
 ## save output ----
 write_csv(
   zip_weights_df, 
-  paste0("../data/output/scratch/", 
-         "zip_weights_df_test_par", as.character(args$year), ".csv")
+  paste0("../data/output/", 
+         "zip_weights_df_", as.character(args$year), ".csv")
 )
-
+print(Sys.time())
 print("completed")
