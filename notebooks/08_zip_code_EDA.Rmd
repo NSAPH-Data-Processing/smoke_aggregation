@@ -1,0 +1,62 @@
+---
+ZIP code EDA to see the coverage of the smoke aggregation files
+---
+
+```{r, warning=FALSE, message=FALSE}
+library(lwgeom)
+library(tidyverse)
+library(lubridate)
+library(sf)
+library(raster)
+library(viridis)
+```
+
+## Open zip files
+
+```{r}
+# set the file path to your CSV file
+file_path <- "../data/output/daily_zip_2006.csv"
+
+# read the CSV file into a data frame using semicolons as the delimiter
+zip_smoke_df <- read.table(file_path, sep=",", header=TRUE)
+zip_smoke_df$date <- as.Date(zip_smoke_df$date)
+# view the first few rows of the data frame
+head(zip_smoke_df)
+```
+
+```{r}
+# Read in the shapefile for zipcodes
+zip_sf <- read_sf("../data/input/local_data/Zipcode_Info/polygon/ESRI06USZIP5_POLY_WGS84.shp")
+
+
+# Convert the ZIP column from character to integer
+zip_sf <- zip_sf %>% 
+  mutate(ZIP = as.integer(ZIP))
+head(zip_sf)
+
+```
+
+```{r}
+# Subset the data for the given date
+zip_smoke_subset <- zip_smoke_df %>% filter(date == "2006-01-01")
+
+# Join the data with the shapefile based on the zipcode
+zip_sf <- left_join(zip_sf, zip_smoke_subset, by = c("ZIP" = "zip"))
+
+# Drop rows with NULL values in smoke column
+zip_sf <- zip_sf %>% drop_na(smoke)
+
+zip_sf
+
+```
+
+```{r}
+
+# Create a map of smoke in every zipcode with thinner line width
+ggplot() +
+  geom_sf(data = zip_sf, aes(fill = smoke), lwd = 0.1) +
+  scale_fill_gradient(low = "yellow", high = "red") +
+  theme_void()
+
+```
+
