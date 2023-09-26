@@ -14,13 +14,19 @@ The data source have an aggregation on ZCTA level instead of ZIP level from the 
 
 The primary objective of this project is to create standardized weights for different zip codes based on a 10km grid. These weights are used to calculate smoke values for individual zip codes over the specified 11-year timeframe. To achieve this, the project utilizes an area-weighted averaging technique applied to a 10km grid, ensuring that the sum of weights within each zip code polygon equals 1. This methodology allows us to estimate smoke concentrations at a local level, providing valuable insights into the impact of wildfire smoke on different regions.
 
+## Accessing Data
+
+If you have access to the NSAPH CANNON database, you can find the project's data at the following location: "/n/dominici_lab/lab/data_processing/smoke_aggregation". However, if you do not have access to this database, you can still obtain the data through the Dataverse platform at [https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/VHNJBD](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/VHNJBD).
+
+
 ## Data Sources
 
-- **10km_grid/10km_grid_wgs84/**: This directory contains the shapefile for the 10 km grid, which serves as the spatial framework for the project. You can access the original grid data on GitHub at [https://github.com/echolab-stanford/daily-10km-smokePM](https://github.com/echolab-stanford/daily-10km-smokePM).
+- **10 km Grid**: This directory contains the shapefile for the 10 km grid, which serves as the spatial framework for the project. You can access the original grid data on GitHub at [https://github.com/echolab-stanford/daily-10km-smokePM](https://github.com/echolab-stanford/daily-10km-smokePM). **If you have access to CANNON, please access it at: /n/dominici_lab/lab/data/10km_grid_wgs84**
 
-- **10km_grid/smokePM2pt5_predictions_daily_10km_20060101-20201231.rds:** This file comprises a data frame containing the final set of daily smoke PM2.5 predictions on days with smoke events at a 10 km resolution. It covers the time span from January 1, 2006, to December 31, 2020, encompassing the contiguous United States. The 'grid_id_10km' column in this file corresponds to the 'ID' column in the 10 km grid shapefile.
+- **10km_grid/smokePM2pt5_predictions_daily_10km_20060101-20201231.rds:** This file comprises a data frame containing the final set of daily smoke PM2.5 predictions on days with smoke events at a 10 km resolution. It covers the time span from January 1, 2006, to December 31, 2020, encompassing the contiguous United States. The 'grid_id_10km' column in this file corresponds to the 'ID' column in the 10 km grid shapefile. **If you have access to CANNON, please access it at: /n/dominici_lab/lab/data/exposures/smoke/smokePM2pt5_predictions_daily_10km_20060101-20201231.csv**
 
-- **Yearly zipcode grid shapefile:** Located at "./data/input/Zipcode_Info/polygon/ESRI," this shapefile represents the yearly zipcode grid. It plays a crucial role in the aggregation of smoke data to the zipcode level. This file is obtained from ArcGIS shapefile: [https://www.arcgis.com/home/item.html?id=46b350fa939149debfd9cc71566b43b4](ArcGIS Shapefile)
+- **Yearly zipcode grid shapefile:** Located at "./data/input/Zipcode_Info/polygon/ESRI," this shapefile represents the yearly zipcode grid. It plays a crucial role in the aggregation of smoke data to the zipcode level. This file is obtained from ArcGIS shapefile: [https://www.arcgis.com/home/item.html?id=46b350fa939149debfd9cc71566b43b4](ArcGIS Shapefile). **If you have access to CANNON, please access it at:/n/dominici_nsaph/Lab/data/shapefiles/zip_shape_files/Zipcode_Info** 
+
 
 ## Output
 
@@ -37,9 +43,6 @@ The primary output of this project is a CSV file containing the following column
 6 00012 2016-01-06     0
 ```
 
-## Accessing Data
-
-If you have access to the NSAPH CANNON database, you can find the project's data at the following location: "/n/dominici_lab/lab/data_processing/smoke_aggregation". However, if you do not have access to this database, you can still obtain the data through the Dataverse platform at [https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/VHNJBD](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/VHNJBD).
 
 ## Running Example Weights
 
