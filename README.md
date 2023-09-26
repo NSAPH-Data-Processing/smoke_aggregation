@@ -20,7 +20,7 @@ The primary objective of this project is to create standardized weights for diff
 
 - **10km_grid/smokePM2pt5_predictions_daily_10km_20060101-20201231.rds:** This file comprises a data frame containing the final set of daily smoke PM2.5 predictions on days with smoke events at a 10 km resolution. It covers the time span from January 1, 2006, to December 31, 2020, encompassing the contiguous United States. The 'grid_id_10km' column in this file corresponds to the 'ID' column in the 10 km grid shapefile.
 
-- **Yearly zipcode grid shapefile:** Located at "./data/input/Zipcode_Info/polygon/ESRI," this shapefile represents the yearly zipcode grid. It plays a crucial role in the aggregation of smoke data to the zipcode level.
+- **Yearly zipcode grid shapefile:** Located at "./data/input/Zipcode_Info/polygon/ESRI," this shapefile represents the yearly zipcode grid. It plays a crucial role in the aggregation of smoke data to the zipcode level. This file is obtained from ArcGIS shapefile: [https://www.arcgis.com/home/item.html?id=46b350fa939149debfd9cc71566b43b4](ArcGIS Shapefile)
 
 ## Output
 
